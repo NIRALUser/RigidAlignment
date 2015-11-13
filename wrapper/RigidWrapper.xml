@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+<title>RigidAlignment</title>
+<version>1.0</version>
+<contributor>Ilwoo Lyu</contributor>
+<description>xml for Rigid Alignment</description>
+	<parameters>
+		<string>
+			<longflag>sphere</longflag>
+			<flag>s</flag>
+			<name>sphere</name>
+			<description>Template sphere model</description>
+	    </string>
+		<directory>
+			<longflag>landmark</longflag>
+			<flag>l</flag>
+			<name>landmark</name>
+			<description>Landmark directory</description>
+		</directory>
+		<directory>
+			<longflag>output</longflag>
+			<flag>o</flag>
+			<name>output</name>
+			<description>Output path</description>
+	    </directory>
+  	</parameters>
+</executable>
