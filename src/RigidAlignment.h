@@ -13,15 +13,18 @@ class RigidAlignment
 {
 public:
 	RigidAlignment(void);
-	RigidAlignment(const char *landmarkDir, vector<char *> landmarkList, const char *sphere, const char *outdir = NULL);
+	RigidAlignment(const char *landmarkDir, vector<char *> landmarkList, const char *sphere, const char *outdir = NULL, bool lmCoordType = false);
 	~RigidAlignment(void);
 	float cost(float *coeff);
 	const float *rot(void);
 	void saveSphere(const char *dir);
+	void saveLM(const char *lm);
 
 private:
 	void setup(const char *landmarkDir, vector<char *> landmarkList, const char *sphere);
+	void setup3f(const char *landmarkDir, vector<char *> landmarkList, const char *sphere);
 	void readPoint(const char *filename);
+	void readPoint3f(const char *filename);
 	void optimization(void);
 	void update(void);
 	void updateAxis(const float phi, const float theta, const float *axis_old, float *axis_new);

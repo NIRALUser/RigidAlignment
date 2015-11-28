@@ -1,14 +1,16 @@
+#include "AABB.h"
 #include "RigidAlignment.h"
 
 RigidAlignment::RigidAlignment(void)
 {
 }
 
-RigidAlignment::RigidAlignment(const char *landmarkDir, vector<char *> landmarkList, const char *sphere, const char *outdir)
+RigidAlignment::RigidAlignment(const char *landmarkDir, vector<char *> landmarkList, const char *sphere, const char *outdir, bool lmCoordType)
 {
 	strcpy(m_spherename, sphere);
 	cout << "Loading Files..\n";
-	setup(landmarkDir, landmarkList, sphere);
+	if (!lmCoordType) setup(landmarkDir, landmarkList, sphere);
+	else setup3f(landmarkDir, landmarkList, sphere);
 	update();
 	
 	cout << "Optimziation\n";
@@ -75,6 +77,51 @@ void RigidAlignment::setup(const char *landmarkDir, vector<char *> landmarkList,
 	}
 }
 
+void RigidAlignment::setup3f(const char *landmarkDir, vector<char *> landmarkList, const char *sphere)
+{
+	m_sphere = new Mesh();
+	m_sphere->openFile(sphere);
+
+	m_nSubj = landmarkList.size();
+	for (int i = 0; i < m_nSubj; i++)
+	{
+		char fullpath[1024];
+		sprintf(fullpath, "%s/%s", landmarkDir, landmarkList[i]);
+		cout << "[" << i << "] " << landmarkList[i] << endl;
+		readPoint3f(fullpath);
+		m_filename.push_back(landmarkList[i]);
+	}
+
+	// rotation angle
+	m_rot = new float[m_nSubj * 3];
+	memset(m_rot, 0, sizeof(float) * m_nSubj * 3);
+	m_nLM = m_point[0].size();
+	
+	// workspace
+	fpoint = new float[m_nSubj * m_nLM * 3];
+	fmean = new float[m_nLM * 3];
+	faxis = new float[m_nSubj * 3];
+
+	// axis
+	memset(faxis, 0, sizeof(float) * m_nSubj * 3);
+	for (int i = 0; i < m_nSubj; i++)
+	{
+		float *axis = &faxis[i * 3];
+		for (int j = 0; j < m_nLM; j++)
+		{
+			float *p = &fpoint[(i * m_nLM + j) * 3];
+			int id = m_point[i][j];
+			memcpy(p, m_sphere->vertex(id)->fv(), sizeof(float) * 3);
+			for (int k = 0; k < 3; k++) axis[k] += p[k];
+		}
+		
+		// axis
+		float norm = axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2];
+		norm = sqrt(norm);
+		for (int k = 0; k < 3; k++) axis[k] /= norm;
+	}
+}
+
 void RigidAlignment::readPoint(const char *filename)
 {
 	int i = 0;
@@ -90,6 +137,37 @@ void RigidAlignment::readPoint(const char *filename)
 	fclose(fp);
 
 	if (!point.empty()) m_point.push_back(point);
+}
+
+void RigidAlignment::readPoint3f(const char *filename)
+{
+	AABB *tree = new AABB(m_sphere);
+	int i = 0;
+	FILE *fp = fopen(filename,"r");
+	vector<int> point;
+	while (!feof(fp))
+	{
+		float v[3];
+		fscanf(fp, "%f %f %f", &v[0], &v[1], &v[2]);
+		float coeffs[3];
+		
+		// find the closest face
+		int fid = tree->closestFace(v, coeffs, 0.01);
+		Face *f = (Face *)m_sphere->face(fid);
+		const int *vid = f->list();
+		int id = vid[0];
+		
+		// find the closest vertex
+		if (coeffs[1] >= coeffs[2] && coeffs[1] >= coeffs[0]) id = vid[1];
+		else if (coeffs[2] >= coeffs[0] && coeffs[2] >= coeffs[1]) id = vid[2];
+		point.push_back(id);
+	}
+	point.pop_back();
+	fclose(fp);
+
+	if (!point.empty()) m_point.push_back(point);
+	
+	delete tree;
 }
 
 float RigidAlignment::landmarkVariance(void)
@@ -244,6 +322,22 @@ void RigidAlignment::saveSphere(const char *dir)
 		sphere->saveFile(filename, "vtk");
 		
 		delete sphere;
+	}
+}
+
+void RigidAlignment::saveLM(const char *dir)
+{
+	for (int i = 0; i < m_nSubj; i++)
+	{
+		char filename[1024];
+		sprintf(filename, "%s/%s.txt", dir, m_filename[i]);
+		FILE *fp = fopen(filename, "w");
+		for (int j = 0; j < m_nLM; j++)
+		{
+			int id = m_point[i][j];
+			fprintf(fp, "%d\n", id);
+		}
+		fclose(fp);
 	}
 }
 

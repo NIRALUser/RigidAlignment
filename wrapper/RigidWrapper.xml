@@ -3,7 +3,7 @@
 <title>RigidAlignment</title>
 <version>1.0</version>
 <contributor>Ilwoo Lyu</contributor>
-<description>xml for Rigid Alignment</description>
+<description>Rigid alignment of the landmarks on the unit sphere: the input models share the same unit sphere and their landmarks are defined as spherical coordinates (x, y, z) or vertex indices</description>
 	<parameters>
 		<string>
 			<longflag>sphere</longflag>
@@ -23,5 +23,15 @@
 			<name>output</name>
 			<description>Output path</description>
 	    </directory>
+	    <directory>
+			<longflag>lmindex</longflag>
+			<name>outputLM</name>
+			<description>Output path of the vertex indices of the landmarks (optional)</description>
+	    </directory>
+	    <boolean>
+	    	<longflag>lmcoord</longflag>
+	    	<name>lmtype</name>
+			<description>regards landmarks as spherical coordinates</description>
+	    </boolean>
   	</parameters>
 </executable>

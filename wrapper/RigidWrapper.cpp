@@ -28,7 +28,9 @@ int main(int argc, char* argv[])
 		landmarkList.push_back(pdir->d_name);
 	}
 
-	RigidAlignment *RAlign = new RigidAlignment(landmark.c_str(), landmarkList, sphere.c_str(), output.c_str());
+	RigidAlignment *RAlign = new RigidAlignment(landmark.c_str(), landmarkList, sphere.c_str(), output.c_str(), lmtype);
+	
+	if (!outputLM.empty()) RAlign->saveLM(outputLM.c_str());
 	
 	delete RAlign;
 }
