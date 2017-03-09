@@ -23,6 +23,23 @@ RigidAlignment::RigidAlignment(const char *landmarkDir, vector<char *> landmarkL
 	}
 }
 
+RigidAlignment::RigidAlignment(std::map<std::string, std::vector<int> > landmarksMap, const char *sphere, const char *outdir, bool lmCoordType)
+{
+	strcpy(m_spherename, sphere);
+	cout << "Loading Files..\n";
+	setup(landmarksMap, sphere);
+	update();
+	
+	cout << "Optimziation\n";
+	optimization();
+	
+	if (outdir != NULL)
+	{
+		cout << "Saving Aligned Spheres..\n";
+		saveSphere(outdir);
+	}
+}
+
 RigidAlignment::~RigidAlignment(void)
 {
 	delete m_sphere;
@@ -45,6 +62,55 @@ void RigidAlignment::setup(const char *landmarkDir, vector<char *> landmarkList,
 		cout << "[" << i << "] " << landmarkList[i] << endl;
 		readPoint(fullpath);
 		m_filename.push_back(landmarkList[i]);
+	}
+
+	// rotation angle
+	m_rot = new float[m_nSubj * 3];
+	memset(m_rot, 0, sizeof(float) * m_nSubj * 3);
+	m_nLM = m_point[0].size();
+	
+	// workspace
+	fpoint = new float[m_nSubj * m_nLM * 3];
+	fmean = new float[m_nLM * 3];
+	faxis = new float[m_nSubj * 3];
+
+	// axis
+	memset(faxis, 0, sizeof(float) * m_nSubj * 3);
+	for (int i = 0; i < m_nSubj; i++)
+	{
+		float *axis = &faxis[i * 3];
+		for (int j = 0; j < m_nLM; j++)
+		{
+			float *p = &fpoint[(i * m_nLM + j) * 3];
+			int id = m_point[i][j];
+			memcpy(p, m_sphere->vertex(id)->fv(), sizeof(float) * 3);
+			for (int k = 0; k < 3; k++) axis[k] += p[k];
+		}
+		
+		// axis
+		float norm = axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2];
+		norm = sqrt(norm);
+		for (int k = 0; k < 3; k++) axis[k] /= norm;
+	}
+}
+
+void RigidAlignment::setup(std::map<std::string, std::vector<int> > landmarksMap, const char *sphere)
+{
+	m_sphere = new Mesh();
+	m_sphere->openFile(sphere);
+
+	m_nSubj = landmarksMap.size();
+
+	int i = 0;
+	std::map<std::string, std::vector<int> >::iterator it = landmarksMap.begin(), it_end = landmarksMap.end();
+	for (; it != it_end; it++)
+	{
+		// string name = ;
+		cout << "[" << i << "] " << it->first << endl;
+		// readPoint(fullpath);
+		if (!(it->second).empty()) m_point.push_back((it->second));
+		m_filename.push_back((it->first).c_str());
+		i++;
 	}
 
 	// rotation angle
@@ -317,9 +383,17 @@ void RigidAlignment::saveSphere(const char *dir)
 		sphere->rotation(axis2, m_rot[i * 3]);
 
 		// output
-		char filename[1024];
-		sprintf(filename, "%s/%s.vtk", dir, m_filename[i]);
-		sphere->saveFile(filename, "vtk");
+		
+		// char filename[1024];
+		// sprintf(filename, "%s/%s.vtk", dir, m_filename[i]);
+
+		string filename;
+		string temp = "/";
+		string temp2 = "_rotSphere.vtk";
+		filename = dir + temp + m_filename[i] + temp2;
+
+		// cout << "m_filename " << i << " :: " << m_filename[i] << endl;
+		sphere->saveFile(filename.c_str(), "vtk");
 		
 		delete sphere;
 	}
@@ -329,9 +403,14 @@ void RigidAlignment::saveLM(const char *dir)
 {
 	for (int i = 0; i < m_nSubj; i++)
 	{
-		char filename[1024];
-		sprintf(filename, "%s/%s.txt", dir, m_filename[i]);
-		FILE *fp = fopen(filename, "w");
+		// char filename[1024];
+		// sprintf(filename, "%s/%s.txt", dir, m_filename[i]);
+		string filename;
+		string temp = "/";
+		string temp2 = ".txt"; 
+		filename = dir + temp + m_filename[i] + temp2;
+
+		FILE *fp = fopen(filename.c_str(), "w");
 		for (int j = 0; j < m_nLM; j++)
 		{
 			int id = m_point[i][j];
@@ -349,4 +428,3 @@ void RigidAlignment::updateAxis(const float phi, const float theta, const float 
 	theta_ += theta;
 	Coordinate::sph2cart(phi_, theta_, axis_new);
 }
-

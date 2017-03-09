@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <map>
+#include <iterator>
 #include "Mesh.h"
 #include "newuoa.h"
 #include "Geom.h"
@@ -14,6 +16,7 @@ class RigidAlignment
 public:
 	RigidAlignment(void);
 	RigidAlignment(const char *landmarkDir, vector<char *> landmarkList, const char *sphere, const char *outdir = NULL, bool lmCoordType = false);
+	RigidAlignment(std::map<std::string, std::vector<int> > landmarksMap, const char *sphere, const char *outdir = NULL, bool lmCoordType = false);
 	~RigidAlignment(void);
 	float cost(float *coeff);
 	const float *rot(void);
@@ -22,6 +25,7 @@ public:
 
 private:
 	void setup(const char *landmarkDir, vector<char *> landmarkList, const char *sphere);
+	void setup(std::map<std::string, std::vector<int> > landmarksMap, const char *sphere);
 	void setup3f(const char *landmarkDir, vector<char *> landmarkList, const char *sphere);
 	void readPoint(const char *filename);
 	void readPoint3f(const char *filename);
@@ -32,7 +36,8 @@ private:
 
 private:
 	vector<vector<int> > m_point;
-	vector<const char *> m_filename;
+	// vector<const char *> m_filename;
+	vector<string> m_filename;
 	Mesh *m_sphere;
 	char m_spherename[255];
 	float *m_rot;

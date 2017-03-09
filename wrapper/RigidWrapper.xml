@@ -17,6 +17,14 @@
 			<name>landmark</name>
 			<description>Landmark directory</description>
 		</directory>
+
+		<directory>
+			<longflag>mesh</longflag>
+			<!-- <flag></flag> -->
+			<name>mesh</name>
+			<description>Mesh directory</description>
+		</directory>
+
 		<directory>
 			<longflag>output</longflag>
 			<flag>o</flag>
