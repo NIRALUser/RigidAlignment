@@ -55,6 +55,7 @@ Or vtk files and fcsv files can be listed in a CSV file as following ```VTK file
 
 ```
 
+NOTE: The reconstruction of new surface models from the results of RigidAlignment is possible via SurfRemesh (git@github.com:pdedumast/SurfRemesh.git).
 
 ## Licence
 
