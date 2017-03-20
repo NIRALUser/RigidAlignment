@@ -348,8 +348,9 @@ float RigidAlignment::cost(float *coeff)
 	update();
 	float cost = landmarkVariance();
 
-	/*if (nIter % 10 == 0)
-		cout << "[" << nIter << "] " << cost << endl;*/
+	//
+	if (nIter % 10 == 0)
+		cout << "[" << nIter << "] " << cost << endl;
 
 	return cost;
 }

@@ -2,6 +2,7 @@
 #include <dirent.h>
 #include <map>
 #include <iterator>
+// #include <ifstream>
 
 #include "RigidWrapperCLP.h"
 #include "RigidAlignment.h"
@@ -14,8 +15,6 @@
 #include <vtkPoints.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkPointLocator.h>
-
-
 
 
 using namespace std;
@@ -42,30 +41,72 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	// Landmarks are initially stored in a fcsv files (fiducials list from Slicer, obtained with Q3DC for example)	
+
 	vector<std::string> landmarkList;
-	if (!landmark.empty() && landmarkList.empty()) {
-        if(! getListFile(landmark.c_str(), landmarkList, "fcsv"))
-            return EXIT_FAILURE;
-    }
+	vector<std::string> meshList;
 
-	std::vector<std::string>::iterator it = landmarkList.begin(), it_end = landmarkList.end();
-	std::cout<<" --- Landmark files"<<std::endl; 
-	for (; it != it_end; it ++)
-		std::cout<<*it<<std::endl; 
+	if (inputCSV != "0")
+	{
+		std::ifstream ifs;
+		ifs.open(inputCSV.c_str(), std::ifstream::in); 
+		if ( ifs.good() != true )
+		{
+			std::cout << " File CSV couldn't be open " << std::endl;
+			return EXIT_FAILURE;
+		}
+		else
+		{	
+			while ( ifs.good() )
+			{
+				istringstream line_stream;
+				std::string line, mesh, fid;
 
-    vector<std::string> meshList;
-	if (!mesh.empty() && meshList.empty()) {
-        if(! getListFile(mesh.c_str(), meshList, "vtk"))
-            return EXIT_FAILURE;
-    }
-    std::cout<<" --- Mesh files"<<std::endl; 
-    it = meshList.begin(), it_end = meshList.end();
-	for (; it != it_end; it ++)
-		std::cout<<*it<<std::endl; 
+				std::getline (ifs, line, '\n');
+
+	    		line_stream.str(line); // set the input stream to line
+	    		getline(line_stream, mesh, ','); 
+	    		getline(line_stream, fid, ','); 
+
+	  			std::size_t pos_vtk = mesh.find(".vtk");  	
+	  			std::size_t pos_fcsv = fid.find(".fcsv");  
+	  			if ( pos_vtk <= mesh.length() && pos_fcsv <= fid.length() )
+				{
+					landmarkList.push_back(fid);
+					meshList.push_back(mesh);
+				}
+			}
+		}
+	}
+	else
+	{
+		// Landmarks are initially stored in a fcsv files (fiducials list from Slicer, obtained with Q3DC for example)	
+		if (!landmark.empty() && landmarkList.empty()) {
+	        if(! getListFile(landmark.c_str(), landmarkList, "fcsv"))
+	            return EXIT_FAILURE;
+	    }
+		if (!mesh.empty() && meshList.empty()) {
+	        if(! getListFile(mesh.c_str(), meshList, "vtk"))
+	            return EXIT_FAILURE;
+	    }
+	}
+
+	// std::vector<std::string>::iterator it = landmarkList.begin(), it_end = landmarkList.end();
+	// std::cout<<" --- Landmark files"<<std::endl; 
+	// for (; it != it_end; it ++)
+	// 	std::cout<<*it<<std::endl; 
+
+	// std::cout<<" --- Mesh files"<<std::endl; 
+	// it = meshList.begin(), it_end = meshList.end();
+	// for (; it != it_end; it ++)
+	// 	std::cout<<*it<<std::endl; 
+
 
 	std::map<std::string, std::vector<int> > landmarksMap; 
 	convertLandmarksToID(landmarksMap, meshList, landmarkList);
+
+	// std::map<std::string, std::vector<int> >::iterator itt = landmarksMap.begin(), itt_end = landmarksMap.end();
+	// for (; itt != itt_end; itt ++)
+	// 	cout << itt->first <<endl;
 
 	RigidAlignment *RAlign = new RigidAlignment(landmarksMap, sphere.c_str(), output.c_str(), lmtype);
 	
