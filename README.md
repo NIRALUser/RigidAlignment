@@ -13,8 +13,9 @@ Outputs are a new aligned sphere for each model.
 
 Building RigidAlignment requires to have built previously:
 
+* CMake
 * SlicerExecutionModel
-
+* MeshLib (https://github.com/pdedumast/MeshLib)
 
 ###### Linux or MacOSX 
 
@@ -32,7 +33,7 @@ cd ~/Project/RigidAlignment-build
 
 Generate the project using ```cmake```
 ```
-cmake -DVTK_DIR:PATH=path/to/VTK -DITK_DIR:PATH=path/to/ITK -DSlicerExecutionModel:PATH=path/to/SlicerExecutionModel ../RigidAlignment
+cmake -DMeshLib_DIR:PATH=path/to/MeshLib -DSlicerExecutionModel:PATH=path/to/SlicerExecutionModel ../RigidAlignment
 make
 ```
 
