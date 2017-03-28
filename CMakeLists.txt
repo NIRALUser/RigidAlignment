@@ -1,4 +1,4 @@
-project(RigidW)
+project(RigidWrapper)
 cmake_minimum_required(VERSION 2.8)
 
 find_package(SlicerExecutionModel REQUIRED)
