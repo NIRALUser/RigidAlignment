@@ -17,6 +17,21 @@
 			<name>landmark</name>
 			<description>Landmark directory</description>
 		</directory>
+
+		<directory>
+			<longflag>mesh</longflag>
+			<!-- <flag></flag> -->
+			<name>mesh</name>
+			<description>Mesh directory</description>
+		</directory>
+
+		<geometry fileExtensions=".csv">
+			<longflag>inputCSV</longflag>
+			<name>inputCSV</name>
+			<default>0</default>
+			<description>Input CSV file</description>
+	    </geometry>
+
 		<directory>
 			<longflag>output</longflag>
 			<flag>o</flag>
