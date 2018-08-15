@@ -1,19 +1,44 @@
-project(RigidWrapper)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
-find_package(SlicerExecutionModel REQUIRED)
+project(RigidAlignment)
+
+#-----------------------------------------------------------------------------
+set(MODULE_NAME RigidAlignment)
+
+#-----------------------------------------------------------------------------
+# MeshLib
 find_package(MeshLib REQUIRED)
-find_package(VTK REQUIRED)
 
-include(${VTK_USE_FILE})
+# SlicerExecutionModel
+find_package(SlicerExecutionModel REQUIRED)
 include(${SlicerExecutionModel_USE_FILE})
-include(${GenerateCLP_USE_FILE})
 
-include_directories(Mesh)
-include_directories( ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} )
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
 
-include_directories(src)
-include_directories(wrapper)
-add_subdirectory(wrapper)
-add_subdirectory(src)
+#-----------------------------------------------------------------------------
+set(MODULE_INCLUDE_DIRECTORIES
+  )
 
+set(MODULE_SRCS
+  RigidAlignmentImpl.cpp
+  )
+
+set(MODULE_TARGET_LIBRARIES
+  Mesh
+  ${VTK_LIBRARIES}
+  )
+
+#-----------------------------------------------------------------------------
+SEMMacroBuildCLI(
+  NAME ${MODULE_NAME}
+  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
+  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
+  ADDITIONAL_SRCS ${MODULE_SRCS}
+  EXECUTABLE_ONLY
+  )
+
+#-----------------------------------------------------------------------------
+if(BUILD_TESTING)
+#  add_subdirectory(Testing)
+endif()
