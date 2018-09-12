@@ -24,6 +24,10 @@ set(MODULE_SRCS
   RigidAlignmentImpl.cpp
   )
 
+if (WIN32)
+list(APPEND MODULE_SRCS dirent.c)
+endif()
+
 set(MODULE_TARGET_LIBRARIES
   Mesh
   ${VTK_LIBRARIES}

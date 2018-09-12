@@ -1,5 +1,9 @@
 #include <string>
+#ifdef WIN32
+#include "dirent.h"
+#else
 #include <dirent.h>
+#endif
 #include <map>
 #include <iterator>
 // #include <ifstream>

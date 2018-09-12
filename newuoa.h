@@ -46,7 +46,7 @@
 #define AC_NEWUOA_HH_
 #include <math.h>
 #include <algorithm>
-//#define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846
 
 using namespace std;
 
