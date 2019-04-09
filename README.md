@@ -1,4 +1,4 @@
-# Rigid Alignment 
+# Rigid Alignment
 
 
 ## Description
@@ -9,7 +9,7 @@ Outputs are a new aligned sphere for each model.
 
 ## Build
 
-#### Requirements 
+#### Requirements
 
 Building RigidAlignment requires to have built previously:
 
@@ -17,7 +17,7 @@ Building RigidAlignment requires to have built previously:
 * SlicerExecutionModel
 * MeshLib (https://github.com/pdedumast/MeshLib)
 
-###### Linux or MacOSX 
+###### Linux or MacOSX
 
 Consider this tree of repertories:
 ```
@@ -40,19 +40,19 @@ make
 
 ## Usage
 
-If the inputs models (vtk files) and their landmarks files (fcsv files) are isolated in two distinct folders: 
+If the inputs models (vtk files) and their landmarks files (fcsv files) are isolated in two distinct folders:
 
 ```
-./RigidWrapper --mesh [<std::string> input models directory] --landmark [<std::string> input fiducial files directory] 
---sphere [<std::string> common unit sphere] --output [<std::string> output directory] 
+./RigidWrapper --mesh [<std::string> input models directory] --landmark [<std::string> input fiducial files directory]
+--sphere [<std::string> common unit sphere] --output [<std::string> output directory]
 
 ```
 
-Or vtk files and fcsv files can be listed in a CSV file as following ```VTK file, FCSV file```. In that case, the command line is now: 
+Or vtk files and fcsv files can be listed in a CSV file as following ```VTK file, FCSV file```. In that case, the command line is now:
 
 ```
-./RigidWrapper --inputCSV [<std::string> input CSV file] --sphere [<std::string> common unit sphere] 
---output [<std::string> output directory] 
+./RigidWrapper --inputCSV [<std::string> input CSV file] --sphere [<std::string> common unit sphere]
+--output [<std::string> output directory]
 
 ```
 
