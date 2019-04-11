@@ -10,7 +10,8 @@
       <flag>s</flag>
       <name>sphere</name>
       <description>Template sphere model</description>
-      </string>
+    </string>
+
     <directory>
       <longflag>landmark</longflag>
       <flag>l</flag>
@@ -48,5 +49,20 @@
         <name>lmtype</name>
       <description>regards landmarks as spherical coordinates</description>
       </boolean>
-    </parameters>
+
+    <string>
+      <longflag>suffixe_procalign</longflag>
+      <name>suffixe_procalign</name>
+      <description>Suffix for the name of SPHARM surfaces</description>
+      <default>_pp_surfSPHARM_procalign.vtk</default>
+    </string>
+
+    <string>
+      <longflag>suffixe_surfSPHARM</longflag>
+      <name>suffixe_surfSPHARM</name>
+      <description>Suffix for the name of SPHARM surfaces</description>
+      <default>_pp_surfSPHARM.vtk</default>
+    </string>
+
+  </parameters>
 </executable>
