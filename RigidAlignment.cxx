@@ -29,7 +29,7 @@ using namespace std;
 
 bool getListFile(string path, vector<string> &list, const string &suffix);
 void getTrimmedList(vector<string> &list, const vector<string> &name);
-void convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList);
+void convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign = "_pp_surfSPHARM_procalign.vtk", string suffixe_surfSPHARM = "_pp_surfSPHARM.vtk");
 void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids);
 
 
@@ -104,13 +104,18 @@ int main(int argc, char* argv[])
   // for (; it != it_end; it ++)
   //  std::cout<<*it<<std::endl;
 
-
   std::map<std::string, std::vector<int> > landmarksMap;
-  convertLandmarksToID(landmarksMap, meshList, landmarkList);
+  convertLandmarksToID(landmarksMap, meshList, landmarkList, suffixe_procalign, suffixe_surfSPHARM);
 
-  // std::map<std::string, std::vector<int> >::iterator itt = landmarksMap.begin(), itt_end = landmarksMap.end();
-  // for (; itt != itt_end; itt ++)
-  //  cout << itt->first <<endl;
+  if(landmarksMap.size() == 0){
+    cerr<<"No matched landmark files and mesh. Please check that the suffix from SPHARM files match the inputs and that landmark files have the right extensions."<<endl;
+    return 1;
+  }
+  std::map<std::string, std::vector<int> >::iterator itt = landmarksMap.begin(), itt_end = landmarksMap.end();
+  cout <<endl<<"Matched files with landmarks:"<<endl;
+  for (; itt != itt_end; itt ++)
+   cout << itt->first <<" "<<itt->second<<endl;
+ cout <<endl;
 
   RigidAlignment *RAlign = new RigidAlignment(landmarksMap, sphere.c_str(), output.c_str(), lmtype);
 
@@ -164,7 +169,7 @@ void getTrimmedList(vector<string> &list, const vector<string> &name)
     sort(list.begin(), list.begin() + list.size());
 }
 
-void convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList)
+void convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign, string suffixe_surfSPHARM)
 {
     // --------- subject names --------
     int nSubj = meshList.size();
@@ -178,18 +183,16 @@ void convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap
             std::string filename = meshList[i].substr(pivot);
 
             std::string name;
-            std::string suffixe_procalign = "_pp_surfSPHARM_procalign.vtk", suffixe_surfSPHARM = "_pp_surfSPHARM.vtk";
-            int suffixe_size;
-
-            if ( filename.substr(filename.length() - suffixe_surfSPHARM.length()) == suffixe_surfSPHARM )
+            int suffixe_size = 0;
+            
+            if ( filename.substr(filename.length() - suffixe_surfSPHARM.length()).compare(suffixe_surfSPHARM) == 0 )
                 suffixe_size = suffixe_surfSPHARM.length();
 
-            else if ( filename.substr(filename.length() - suffixe_procalign.length()) == suffixe_procalign )
+            else if ( filename.substr(filename.length() - suffixe_procalign.length()).compare(suffixe_procalign) == 0 )
                 suffixe_size = suffixe_procalign.length();
 
             name = filename.substr(0, filename.length() - suffixe_size);
             subjName.push_back(name);
-            // std::cout << "Name du subject " << i << " :: " << name << std::endl;
 
             // Find corresponding fiducials list
             std::vector< std::string > :: const_iterator it = landmarkList.begin(), it_end = landmarkList.end();
