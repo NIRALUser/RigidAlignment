@@ -26,12 +26,12 @@
       <description>Mesh directory</description>
     </directory>
 
-    <geometry fileExtensions=".csv">
+    <file fileExtensions=".csv">
       <longflag>inputCSV</longflag>
       <name>inputCSV</name>
       <default>0</default>
       <description>Input CSV file</description>
-      </geometry>
+      </file>
 
     <directory>
       <longflag>output</longflag>
