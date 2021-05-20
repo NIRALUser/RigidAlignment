@@ -54,14 +54,14 @@
       <longflag>suffixe_procalign</longflag>
       <name>suffixe_procalign</name>
       <description>Suffix for the name of SPHARM surfaces</description>
-      <default>_pp_surfSPHARM_procalign.vtk</default>
+      <default>_pp_surf_SPHARM_procalign.vtk</default>
     </string>
 
     <string>
       <longflag>suffixe_surfSPHARM</longflag>
       <name>suffixe_surfSPHARM</name>
       <description>Suffix for the name of SPHARM surfaces</description>
-      <default>_pp_surfSPHARM.vtk</default>
+      <default>_pp_surf_SPHARM.vtk</default>
     </string>
 
   </parameters>
