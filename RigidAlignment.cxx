@@ -242,7 +242,7 @@ void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &l
   // Get the Surface filename from the command line
   std::fstream fcsvfile(landmarks.c_str());
   std::string line, mot;
-  std::string words[NB_LINES][NB_WORDS]; // !!!! WARNING DEFINE AND TO PROTECT IF SUPERIOR TO 20
+  std::vector< std::vector< std::string > > words(NB_LINES); // !!!! WARNING DEFINE AND TO PROTECT IF SUPERIOR TO 20
   int i,j, NbPoints;
 
   if(fcsvfile)
@@ -260,7 +260,7 @@ void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &l
     i=0;
     do
     {
-
+      words[i].resize(NB_WORDS);
       std::size_t pos_end;// = mot.find(",,");
       std::size_t pos1;
       j=0;

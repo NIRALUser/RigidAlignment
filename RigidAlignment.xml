@@ -26,12 +26,12 @@
       <description>Mesh directory</description>
     </directory>
 
-    <geometry fileExtensions=".csv">
+    <file fileExtensions=".csv">
       <longflag>inputCSV</longflag>
       <name>inputCSV</name>
       <default>0</default>
       <description>Input CSV file</description>
-      </geometry>
+      </file>
 
     <directory>
       <longflag>output</longflag>
@@ -54,14 +54,14 @@
       <longflag>suffixe_procalign</longflag>
       <name>suffixe_procalign</name>
       <description>Suffix for the name of SPHARM surfaces</description>
-      <default>_pp_surfSPHARM_procalign.vtk</default>
+      <default>_pp_surf_SPHARM_procalign.vtk</default>
     </string>
 
     <string>
       <longflag>suffixe_surfSPHARM</longflag>
       <name>suffixe_surfSPHARM</name>
       <description>Suffix for the name of SPHARM surfaces</description>
-      <default>_pp_surfSPHARM.vtk</default>
+      <default>_pp_surf_SPHARM.vtk</default>
     </string>
 
   </parameters>
