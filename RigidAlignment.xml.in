@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
+@MODULE_CATEGORY_CONFIG@
 <title>RigidAlignment</title>
 <version>1.0</version>
 <contributor>Ilwoo Lyu</contributor>
