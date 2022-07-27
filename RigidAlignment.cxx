@@ -4,6 +4,7 @@
 #else
 #include <dirent.h>
 #endif
+#include <algorithm>
 #include <map>
 #include <iterator>
 
@@ -25,7 +26,6 @@ using namespace std;
 #define NB_WORDS 250
 
 bool getListFile(string path, vector<string> &list, const string &suffix);
-void getTrimmedList(vector<string> &list, const vector<string> &name);
 std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign = "_pp_surfSPHARM_procalign.vtk", string suffixe_surfSPHARM = "_pp_surfSPHARM.vtk");
 void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids);
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     ifs.open(inputCSV.c_str(), std::ifstream::in);
     if ( ifs.good() != true )
     {
-      std::cout << " File CSV couldn't be open " << std::endl;
+      std::cerr << " File CSV couldn't be open " << std::endl;
       return EXIT_FAILURE;
     }
     else
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
         istringstream line_stream;
         std::string line, mesh, fid;
 
-        std::getline (ifs, line, '\n');
+        std::getline (ifs, line);
 
         line_stream.str(line); // set the input stream to line
         getline(line_stream, mesh, ',');
@@ -131,21 +131,13 @@ bool getListFile(string path, vector<string> &list, const string &suffix)
   }
 }
 
-void getTrimmedList(vector<string> &list, const vector<string> &name)
+std::string getFilenameComponent(const std::string& filepath)
 {
-  int i = 0;
-  while (i < list.size())
-  {
-    size_t found;
-    for (int j = 0; j < name.size(); j++)
-    {
-      found = list[i].find(name[j].substr(name[j].rfind('/') + 1));
-      if (string::npos != found) break;
-    }
-    if (string::npos == found) list.erase(list.begin() + i);
-    else i++;
-  }
-  sort(list.begin(), list.begin() + list.size());
+  std::string fixedFilepath = filepath;
+  // Move all slashes to forward slash
+  std::replace(fixedFilepath.begin(), fixedFilepath.end(), '\\', '/');
+  int pivot = fixedFilepath.rfind('/') + 1;
+  return fixedFilepath.substr(pivot);
 }
 
 std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign, string suffixe_surfSPHARM)
@@ -158,9 +150,7 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
   {
     for (int i = 0; i < nSubj; i++)
     {
-      int pivot = meshList[i].rfind('/') + 1;
-
-      std::string filename = meshList[i].substr(pivot);
+      std::string filename = getFilenameComponent(meshList[i]);
 
       std::string name;
       int suffixe_size = 0;
@@ -180,9 +170,7 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
       {
         string suffix_fid = "_fid.fcsv";
         string landmarkName = (*it).substr(0, (*it).length() - suffix_fid.length());
-        pivot = landmarkName.rfind('/') + 1;
-
-        landmarkName = landmarkName.substr(pivot);
+        landmarkName = getFilenameComponent(landmarkName);
         if (name == landmarkName) // On a trouve le bon!
         {
           std::vector<int> landmarkPids;
@@ -193,6 +181,10 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
         }
       }
     }
+  }
+  else
+  {
+    std::cerr << "No subjects found" << std::endl;
   }
   return matchedNames;
 }
@@ -207,7 +199,7 @@ void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &l
   vtkPolyData* inputPolyData = surfacereader->GetOutput();
 
   // Build a locator
-  vtkPointLocator *pointLocator = vtkPointLocator::New();
+  vtkSmartPointer<vtkPointLocator> pointLocator = vtkSmartPointer<vtkPointLocator>::New();
   pointLocator->SetDataSet(inputPolyData);
   pointLocator->BuildLocator();
 
