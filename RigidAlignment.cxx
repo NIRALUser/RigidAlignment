@@ -25,9 +25,11 @@ using namespace std;
 #define NB_LINES 250
 #define NB_WORDS 250
 
-bool getListFile(string path, vector<string> &list, const string &suffix);
-std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign = "_pp_surfSPHARM_procalign.vtk", string suffixe_surfSPHARM = "_pp_surfSPHARM.vtk");
-void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids);
+
+bool getListFile(const string& path, vector<string> &list, const string &suffix);
+std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, const string& suffixe_procalign = "_pp_surfSPHARM_procalign.vtk", const string& suffixe_surfSPHARM = "_pp_surfSPHARM.vtk");
+void getIDlandmarks(const std::string& mesh, const std::string& landmarks, std::vector<int> &landmarkPids);
+
 
 int main(int argc, char* argv[])
 {
@@ -100,16 +102,14 @@ int main(int argc, char* argv[])
     cout << itt->first << " " << itt->second << endl;
   cout << endl;
 
-  RigidAlignment *RAlign = new RigidAlignment(landmarksMap, sphere.c_str(), output.c_str(), lmtype);
+  std::unique_ptr<RigidAlignment> RAlign(new RigidAlignment(landmarksMap, sphere.c_str(), output.c_str(), lmtype));
 
   if (!outputLM.empty()) RAlign->saveLM(outputLM.c_str());
-
-  delete RAlign;
 
   return 0;
 }
 
-bool getListFile(string path, vector<string> &list, const string &suffix)
+bool getListFile(const string& path, vector<string> &list, const string &suffix)
 {
   DIR *dir = opendir(path.c_str());
   if (dir != NULL)
@@ -140,7 +140,7 @@ std::string getFilenameComponent(const std::string& filepath)
   return fixedFilepath.substr(pivot);
 }
 
-std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign, string suffixe_surfSPHARM)
+std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, const string& suffixe_procalign, const string& suffixe_surfSPHARM)
 {
   // --------- subject names --------
   int nSubj = meshList.size();
@@ -152,7 +152,6 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
     {
       std::string filename = getFilenameComponent(meshList[i]);
 
-      std::string name;
       int suffixe_size = 0;
 
       if ( filename.substr(filename.length() - suffixe_surfSPHARM.length()).compare(suffixe_surfSPHARM) == 0 )
@@ -161,7 +160,7 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
       else if ( filename.substr(filename.length() - suffixe_procalign.length()).compare(suffixe_procalign) == 0 )
         suffixe_size = suffixe_procalign.length();
 
-      name = filename.substr(0, filename.length() - suffixe_size);
+      std::string name = filename.substr(0, filename.length() - suffixe_size);
       subjName.push_back(name);
 
       // Find corresponding fiducials list
@@ -189,7 +188,7 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
   return matchedNames;
 }
 
-void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids)
+void getIDlandmarks(const std::string& mesh, const std::string& landmarks, std::vector<int> &landmarkPids)
 {
   // Get all surface data from the file
   vtkSmartPointer<vtkPolyDataReader> surfacereader = vtkSmartPointer<vtkPolyDataReader>::New();
