@@ -185,7 +185,7 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
 
             std::string name;
             int suffixe_size = 0;
-            
+
             if ( filename.substr(filename.length() - suffixe_surfSPHARM.length()).compare(suffixe_surfSPHARM) == 0 )
                 suffixe_size = suffixe_surfSPHARM.length();
 
