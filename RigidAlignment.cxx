@@ -20,20 +20,15 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkPointLocator.h>
 
-
 using namespace std;
 
 #define NB_LINES 250
 #define NB_WORDS 250
 
-
 bool getListFile(string path, vector<string> &list, const string &suffix);
 void getTrimmedList(vector<string> &list, const vector<string> &name);
 std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign = "_pp_surfSPHARM_procalign.vtk", string suffixe_surfSPHARM = "_pp_surfSPHARM.vtk");
 void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids);
-
-
-
 
 int main(int argc, char* argv[])
 {
@@ -44,7 +39,6 @@ int main(int argc, char* argv[])
     cout << "Usage: " << argv[0] << " --help" << endl;
     return -1;
   }
-
 
   vector<std::string> landmarkList;
   vector<std::string> meshList;
@@ -67,13 +61,13 @@ int main(int argc, char* argv[])
 
         std::getline (ifs, line, '\n');
 
-          line_stream.str(line); // set the input stream to line
-          getline(line_stream, mesh, ',');
-          getline(line_stream, fid, ',');
+        line_stream.str(line); // set the input stream to line
+        getline(line_stream, mesh, ',');
+        getline(line_stream, fid, ',');
 
-          std::size_t pos_vtk = mesh.find(".vtk");
-          std::size_t pos_fcsv = fid.find(".fcsv");
-          if ( pos_vtk <= mesh.length() && pos_fcsv <= fid.length() )
+        std::size_t pos_vtk = mesh.find(".vtk");
+        std::size_t pos_fcsv = fid.find(".fcsv");
+        if ( pos_vtk <= mesh.length() && pos_fcsv <= fid.length() )
         {
           landmarkList.push_back(fid);
           meshList.push_back(mesh);
@@ -85,13 +79,13 @@ int main(int argc, char* argv[])
   {
     // Landmarks are initially stored in a fcsv files (fiducials list from Slicer, obtained with Q3DC for example)
     if (!landmark.empty() && landmarkList.empty()) {
-          if(! getListFile(landmark.c_str(), landmarkList, "fcsv"))
-              return EXIT_FAILURE;
-      }
+      if(! getListFile(landmark.c_str(), landmarkList, "fcsv"))
+        return EXIT_FAILURE;
+    }
     if (!mesh.empty() && meshList.empty()) {
-          if(! getListFile(mesh.c_str(), meshList, "vtk"))
-              return EXIT_FAILURE;
-      }
+      if(! getListFile(mesh.c_str(), meshList, "vtk"))
+        return EXIT_FAILURE;
+    }
   }
 
   // std::vector<std::string>::iterator it = landmarkList.begin(), it_end = landmarkList.end();
@@ -114,8 +108,8 @@ int main(int argc, char* argv[])
   std::map<std::string, std::string >::iterator itt = matchedNamesMap.begin(), itt_end = matchedNamesMap.end();
   cout <<endl<<"Matched files with landmarks:"<<endl;
   for (; itt != itt_end; itt ++)
-   cout << itt->first <<" "<<itt->second<<endl;
- cout <<endl;
+    cout << itt->first << " " << itt->second << endl;
+  cout << endl;
 
   RigidAlignment *RAlign = new RigidAlignment(landmarksMap, sphere.c_str(), output.c_str(), lmtype);
 
@@ -126,108 +120,102 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-
-
 bool getListFile(string path, vector<string> &list, const string &suffix)
 {
-
-    DIR *dir = opendir(path.c_str());
-    if (dir != NULL)
+  DIR *dir = opendir(path.c_str());
+  if (dir != NULL)
+  {
+    while (dirent *entry = readdir(dir))
     {
-        while (dirent *entry = readdir(dir))
-        {
-            string filename = entry->d_name;
-            if(filename.find(suffix) != string::npos && filename.find_last_of(suffix) == filename.size() - 1)
-            {
-                list.push_back(path + "/" + filename);
-            }
-        }
-        closedir(dir);
-        sort(list.begin(), list.begin() + list.size());
-        return true;
-    }else{
-
-        cerr<<"The directory does not exist! "<<path<<endl;
-        return false;
+      string filename = entry->d_name;
+      if(filename.find(suffix) != string::npos && filename.find_last_of(suffix) == filename.size() - 1)
+      {
+        list.push_back(path + "/" + filename);
+      }
     }
+    closedir(dir);
+    sort(list.begin(), list.begin() + list.size());
+    return true;
+  } else {
+    cerr<<"The directory does not exist! "<<path<<endl;
+    return false;
+  }
 }
 
 void getTrimmedList(vector<string> &list, const vector<string> &name)
 {
-    int i = 0;
-    while (i < list.size())
+  int i = 0;
+  while (i < list.size())
+  {
+    size_t found;
+    for (int j = 0; j < name.size(); j++)
     {
-        size_t found;
-        for (int j = 0; j < name.size(); j++)
-        {
-            found = list[i].find(name[j].substr(name[j].rfind('/') + 1));
-            if (string::npos != found) break;
-        }
-        if (string::npos == found) list.erase(list.begin() + i);
-        else i++;
+      found = list[i].find(name[j].substr(name[j].rfind('/') + 1));
+      if (string::npos != found) break;
     }
-    sort(list.begin(), list.begin() + list.size());
+    if (string::npos == found) list.erase(list.begin() + i);
+    else i++;
+  }
+  sort(list.begin(), list.begin() + list.size());
 }
 
 std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, std::vector<int> > &landmarksMap, const vector<string> &meshList, const vector<string> &landmarkList, string suffixe_procalign, string suffixe_surfSPHARM)
 {
-    // --------- subject names --------
-    int nSubj = meshList.size();
-    vector<string> subjName;
-    std::map<std::string, std::string> matchedNames;
-    if (nSubj > 0)
+  // --------- subject names --------
+  int nSubj = meshList.size();
+  vector<string> subjName;
+  std::map<std::string, std::string> matchedNames;
+  if (nSubj > 0)
+  {
+    for (int i = 0; i < nSubj; i++)
     {
-        for (int i = 0; i < nSubj; i++)
+      int pivot = meshList[i].rfind('/') + 1;
+
+      std::string filename = meshList[i].substr(pivot);
+
+      std::string name;
+      int suffixe_size = 0;
+
+      if ( filename.substr(filename.length() - suffixe_surfSPHARM.length()).compare(suffixe_surfSPHARM) == 0 )
+        suffixe_size = suffixe_surfSPHARM.length();
+
+      else if ( filename.substr(filename.length() - suffixe_procalign.length()).compare(suffixe_procalign) == 0 )
+        suffixe_size = suffixe_procalign.length();
+
+      name = filename.substr(0, filename.length() - suffixe_size);
+      subjName.push_back(name);
+
+      // Find corresponding fiducials list
+      std::vector< std::string > :: const_iterator it = landmarkList.begin(), it_end = landmarkList.end();
+      for (; it != it_end; it++)
+      {
+        string suffix_fid = "_fid.fcsv";
+        string landmarkName = (*it).substr(0, (*it).length() - suffix_fid.length());
+        pivot = landmarkName.rfind('/') + 1;
+
+        landmarkName = landmarkName.substr(pivot);
+        if (name == landmarkName) // On a trouve le bon!
         {
-            int pivot = meshList[i].rfind('/') + 1;
-
-            std::string filename = meshList[i].substr(pivot);
-
-            std::string name;
-            int suffixe_size = 0;
-
-            if ( filename.substr(filename.length() - suffixe_surfSPHARM.length()).compare(suffixe_surfSPHARM) == 0 )
-                suffixe_size = suffixe_surfSPHARM.length();
-
-            else if ( filename.substr(filename.length() - suffixe_procalign.length()).compare(suffixe_procalign) == 0 )
-                suffixe_size = suffixe_procalign.length();
-
-            name = filename.substr(0, filename.length() - suffixe_size);
-            subjName.push_back(name);
-
-            // Find corresponding fiducials list
-            std::vector< std::string > :: const_iterator it = landmarkList.begin(), it_end = landmarkList.end();
-            for (; it != it_end; it++)
-            {
-              string suffix_fid = "_fid.fcsv";
-              string landmarkName = (*it).substr(0, (*it).length() - suffix_fid.length());
-              pivot = landmarkName.rfind('/') + 1;
-
-              landmarkName = landmarkName.substr(pivot);
-              if (name == landmarkName) // On a trouve le bon!
-              {
-                std::vector<int> landmarkPids;
-                getIDlandmarks(meshList[i], *it, landmarkPids);
-                landmarksMap[name] = landmarkPids;
-                matchedNames[name] = landmarkName;
-                break;
-              }
-
-            }
+          std::vector<int> landmarkPids;
+          getIDlandmarks(meshList[i], *it, landmarkPids);
+          landmarksMap[name] = landmarkPids;
+          matchedNames[name] = landmarkName;
+          break;
         }
+      }
     }
-    return matchedNames;
+  }
+  return matchedNames;
 }
-
 
 void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids)
 {
   // cout << "mesh  " << mesh.c_str() << endl;
 
   // Get all surface data from the file
-    vtkSmartPointer<vtkPolyDataReader> surfacereader = vtkSmartPointer<vtkPolyDataReader>::New();
-    surfacereader->SetFileName(mesh.c_str());
-    surfacereader->Update();
+  vtkSmartPointer<vtkPolyDataReader> surfacereader = vtkSmartPointer<vtkPolyDataReader>::New();
+  surfacereader->SetFileName(mesh.c_str());
+  surfacereader->Update();
 
   vtkPolyData* inputPolyData = surfacereader->GetOutput();
   // std::cout << "Input surface has " << inputPolyData->GetNumberOfPoints() << " points." << std::endl;
@@ -276,25 +264,22 @@ void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &l
       i++;
     } while(fcsvfile>>mot);
 
-      NbPoints = i;
+    NbPoints = i;
     for (int i = 0; i < NbPoints; ++i)
     {
       double x = atof(words[i][1].c_str());
       double y = atof(words[i][2].c_str());
       double z = atof(words[i][3].c_str());
 
-                      // Find closest point
-                      vtkIdType ptId;
-                      double p[] = {0.0, 0.0, 0.0};
-                      p[0] = x; p[1] = y; p[2] = z;
-                      ptId = pointLocator->FindClosestPoint(p);
-                      landmarkPids.push_back(ptId);
+      // Find closest point
+      vtkIdType ptId;
+      double p[] = {0.0, 0.0, 0.0};
+      p[0] = x; p[1] = y; p[2] = z;
+      ptId = pointLocator->FindClosestPoint(p);
+      landmarkPids.push_back(ptId);
     }
   }
   else
     std::cout<<"Error !";
 
 }
-
-
-
