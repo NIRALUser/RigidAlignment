@@ -6,7 +6,6 @@
 #endif
 #include <map>
 #include <iterator>
-// #include <ifstream>
 
 #include "RigidAlignmentCLP.h"
 #include "RigidAlignmentImpl.h"
@@ -87,16 +86,6 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
   }
-
-  // std::vector<std::string>::iterator it = landmarkList.begin(), it_end = landmarkList.end();
-  // std::cout<<" --- Landmark files"<<std::endl;
-  // for (; it != it_end; it ++)
-  //  std::cout<<*it<<std::endl;
-
-  // std::cout<<" --- Mesh files"<<std::endl;
-  // it = meshList.begin(), it_end = meshList.end();
-  // for (; it != it_end; it ++)
-  //  std::cout<<*it<<std::endl;
 
   std::map<std::string, std::vector<int> > landmarksMap;
   std::map<std::string, std::string > matchedNamesMap =  convertLandmarksToID(landmarksMap, meshList, landmarkList, suffixe_procalign, suffixe_surfSPHARM);
@@ -210,15 +199,12 @@ std::map<std::string, std::string> convertLandmarksToID(std::map<std::string, st
 
 void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &landmarkPids)
 {
-  // cout << "mesh  " << mesh.c_str() << endl;
-
   // Get all surface data from the file
   vtkSmartPointer<vtkPolyDataReader> surfacereader = vtkSmartPointer<vtkPolyDataReader>::New();
   surfacereader->SetFileName(mesh.c_str());
   surfacereader->Update();
 
   vtkPolyData* inputPolyData = surfacereader->GetOutput();
-  // std::cout << "Input surface has " << inputPolyData->GetNumberOfPoints() << " points." << std::endl;
 
   // Build a locator
   vtkPointLocator *pointLocator = vtkPointLocator::New();
@@ -249,7 +235,7 @@ void getIDlandmarks(std::string mesh, std::string landmarks, std::vector<int> &l
     do
     {
       words[i].resize(NB_WORDS);
-      std::size_t pos_end;// = mot.find(",,");
+      std::size_t pos_end;
       std::size_t pos1;
       j=0;
       do
