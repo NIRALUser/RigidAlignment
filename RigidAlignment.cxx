@@ -1,9 +1,4 @@
 #include <string>
-#ifdef _WIN32
-#include "dirent.h"
-#else
-#include <dirent.h>
-#endif
 #include <algorithm>
 #include <map>
 #include <iterator>
@@ -19,6 +14,8 @@
 #include <vtkPoints.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkPointLocator.h>
+#include <vtksys/Directory.hxx>
+#include <vtksys/SystemTools.hxx>
 
 using namespace std;
 
@@ -109,26 +106,35 @@ int main(int argc, char* argv[])
   return 0;
 }
 
+bool endsWith(const string& value, const string& suffix) {
+  return value.size() >= suffix.size() && 0 == value.compare(value.size() - suffix.size(), suffix.size(), suffix);
+}
+
 bool getListFile(const string& path, vector<string> &list, const string &suffix)
 {
-  DIR *dir = opendir(path.c_str());
-  if (dir != NULL)
+  vtksys::Directory dir;
+  std::string errorMessage = "";
+  dir.Load(path.c_str(), &errorMessage);
+  if (errorMessage != "")
   {
-    while (dirent *entry = readdir(dir))
-    {
-      string filename = entry->d_name;
-      if(filename.find(suffix) != string::npos && filename.find_last_of(suffix) == filename.size() - 1)
-      {
-        list.push_back(path + "/" + filename);
-      }
-    }
-    closedir(dir);
-    sort(list.begin(), list.begin() + list.size());
-    return true;
-  } else {
-    cerr<<"The directory does not exist! "<<path<<endl;
+    cerr << "Failed to list directory " << path << ": " << errorMessage << endl;
     return false;
   }
+  for (unsigned long fileNum=0; fileNum < dir.GetNumberOfFiles(); ++fileNum)
+  {
+    std::string filename = std::string(dir.GetFile(fileNum));
+    std::string filepath = path + "/" + filename;
+    if (vtksys::SystemTools::FileIsDirectory(filepath))
+    {
+      continue;
+    }
+    if (endsWith(filename, suffix))
+    {
+      list.push_back(filepath);
+    }
+  }
+  sort(list.begin(), list.end());
+  return true;
 }
 
 std::string getFilenameComponent(const std::string& filepath)
