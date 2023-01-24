@@ -255,6 +255,9 @@ float RigidAlignment::landmarkVariance(void)
       }
       norm1 = sqrt(norm1);
       norm2 = sqrt(norm2);
+      if (norm1 * norm2 == 0) {
+        continue;
+      }
       inner /= norm1 * norm2;
       if (inner > 1) inner = 1;
       else if (inner < -1) inner = -1;
@@ -326,8 +329,13 @@ void RigidAlignment::update(void)
   {
     float norm = fmean[i * 3] * fmean[i * 3] + fmean[i * 3 + 1] * fmean[i * 3 + 1] + fmean[i * 3 + 2] * fmean[i * 3 + 2];
     norm = sqrt(norm);
-    for (int j = 0; j < 3; j++)
-      fmean[i * 3 + j] /= norm;
+    if (norm != 0) {
+      for (int j = 0; j < 3; j++)
+          fmean[i * 3 + j] /= norm;
+    } else {
+      std::cerr << "The mean of landmark " << i
+        << " is at the origin. This is a degenerate case. This landmark point will be skipped during optimization for iteration " << nIter << "." << std::endl;
+    }
   }
 
   /*for (int i = 0; i < m_nLM; i++)

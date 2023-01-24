@@ -42,7 +42,7 @@ private:
   char m_spherename[255];
   float *m_rot;
 
-  int nIter;
+  int nIter = 0;
   int m_nSubj;
   int m_nLM;
 
