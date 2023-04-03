@@ -6,9 +6,6 @@ project(RigidAlignment)
 set(MODULE_NAME RigidAlignment)
 
 #-----------------------------------------------------------------------------
-# VTK
-find_package(VTK REQUIRED)
-
 # MeshLib
 find_package(MeshLib REQUIRED)
 
@@ -42,9 +39,7 @@ set(MODULE_SRCS
 
 set(MODULE_TARGET_LIBRARIES
   Mesh
-  VTK::CommonCore
-  VTK::IOCore
-  VTK::IOLegacy
+  ${VTK_LIBRARIES}
   )
 
 #-----------------------------------------------------------------------------
@@ -55,13 +50,6 @@ SEMMacroBuildCLI(
   INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
   ADDITIONAL_SRCS ${MODULE_SRCS}
   EXECUTABLE_ONLY
-
-  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-  LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
-  INSTALL_RUNTIME_DESTINATION ${INSTALL_RUNTIME_DESTINATION}
-  INSTALL_LIBRARY_DESTINATION ${INSTALL_LIBRARY_DESTINATION}
-  INSTALL_ARCHIVE_DESTINATION ${INSTALL_ARCHIVE_DESTINATION}
   )
 
 #-----------------------------------------------------------------------------
